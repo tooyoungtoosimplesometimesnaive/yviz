@@ -1,0 +1,10 @@
+attr1:
+        attr_sub1: true
+        attr_sub2: "yeah"
+        attr_sub3:
+                - "This"
+                - "is"
+                - "a"
+                - "list"
+attr2: false
+

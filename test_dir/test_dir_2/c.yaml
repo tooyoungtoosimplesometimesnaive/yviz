@@ -1,0 +1,5 @@
+extends:
+        - ../a.yaml
+        - ../b.yaml
+attr6: "hey"
+

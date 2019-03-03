@@ -1,0 +1,12 @@
+extends:
+        - a.yaml
+attr3:
+        attr_sub1: true
+        attr_sub2: "yeah"
+        attr_sub3:
+                - "This"
+                - "is"
+                - "a"
+                - "list"
+attr4: false
+
