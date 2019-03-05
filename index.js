@@ -4,9 +4,17 @@ const path = require('path')
 
 const args = process.argv
 
+let allNodesMode = true
+let interestedNode = ''
+
 if (args.length < 3) {
-	console.err("Require one Argument")
+	console.err("Require at least one Argument")
 	process.exit(1)
+}
+
+if (args.length == 4) {
+	allNodesMode = false
+	interestedNode = path.resolve(__dirname, args[3])
 }
 
 const dirRoot = path.resolve(__dirname, args[2])
@@ -64,6 +72,37 @@ function parentMap(filePathList) {
 	return resultMap
 }
 
+function relatedNodes(parentMap, interestedNode) {
+	function reverseParentMap(parentMap) {
+		// key: child, value: list of parents
+		const childMap = {}
+		Object.keys(parentMap).forEach(p => {
+			parentMap[p].forEach(child => {
+				if (child in childMap) {
+					childMap[child].push(p)
+				} else {
+					childMap[child] = [p]
+				}
+			})
+		})
+		return childMap
+	}
+	function getParents(n, childMap, pathSet) {
+		pathSet.add(n)
+		const parents = childMap[n]
+		if (parents) {
+			parents.forEach(p => {
+				getParents(p, childMap, pathSet)
+			})
+		}
+	}
+
+	const s = new Set()
+	const childMap = reverseParentMap(parentMap)
+	getParents(interestedNode, childMap, s)
+	return s
+}
+
 function generateDotFile(parentMap){
 
 	function name(absolutePath) {
@@ -89,8 +128,32 @@ function generateDotFile(parentMap){
 		return all.filter(f => !usedFiles.has(f)).map(f => `"${name(f)}"`).join('\n')
 	}
 
-	return `digraph G {
+	function edges2(pMap, relatedNodesSet) {
+		let str = ''
+		Object.keys(pMap).forEach(p => {
+			const v = pMap[p]
+			v.forEach(child => {
+				if (relatedNodesSet.has(child) && relatedNodesSet.has(p)) {
+					str += `"${name(p)}" -> "${name(child)}";\n`
+				}
+			})
+		})
+		return str
+	}
+
+	if (allNodesMode) {
+		return `digraph G {
 ${edges(parentMap)}
 ${isolated()}
 }`
+	} else {
+		const relatedNodesSet = relatedNodes(parentMap, interestedNode)
+		if (relatedNodesSet.size == 1) {
+			return `digraph G { ${name(interestedNode)} }`
+		} else {
+			return `digraph G {
+${edges2(parentMap, relatedNodesSet)}
+}`
+		}
+	}
 }

@@ -6,12 +6,28 @@ This tool is looking for yaml files with the `extends` field, and generate a tre
 
 Requirement: [graphviz](http://www.graphviz.org/) installed
 
+# Usage
+
 Sample command:
 ```
 node index.js ./test_dir | dot -Tsvg > yaml_tree.svg
 ```
 
+If provided with two arguments, the second argument should be one of the yaml file in the designated directory. it will only generate the tree graph with this node and all its parents.
+
+Sample command:
+```
+node index.js ./test_dir ./test_dir/test_dir_2/f.yaml | dot -Tsvg > yaml_sub_tree.svg
+```
+
+
+# Executable is included in the repo
+
 I used this amazing tool to create the executable: [nexe](https://github.com/nexe/nexe)
+Just do:
+```
+nexe index.js
+```
 
 If there is a bug during executable generation, refer to this [issue](https://github.com/nexe/nexe/issues/585)
 
